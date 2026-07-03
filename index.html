@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Focus Check — A Self-Reflection Screener</title>
+<meta name="description" content="A free 12-question self-reflection screener for ADHD-related attention, restlessness, and impulsivity patterns. Not a diagnosis — a conversation starter." />
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600;9..144,700&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --paper: #FAF8FF;
+    --ink: #241F3D;
+    --primary: #4C3B6E;
+    --accent: #F2A93B;
+    --muted: #8A82A6;
+    --line: #E4DEF2;
+    --tint: #F1ECFF;
+    --low: #4C956C;
+    --mid: #F2A93B;
+    --high: #C0533F;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    background: var(--paper);
+    color: var(--ink);
+    font-family: 'Inter', system-ui, sans-serif;
+    display: flex;
+    justify-content: center;
+    padding: 32px 16px 60px;
+  }
+  .wrap { width: 100%; max-width: 440px; }
+  .header { display: flex; align-items: center; gap: 10px; margin-bottom: 28px; }
+  .brand-title { font-family: 'Fraunces', serif; font-weight: 700; font-size: 20px; line-height: 1; }
+  .brand-sub { font-size: 11px; color: var(--muted); letter-spacing: 0.03em; margin-top: 3px; }
+  h1 { font-family: 'Fraunces', serif; font-size: 32px; line-height: 1.15; font-weight: 600; margin: 0 0 14px; }
+  h2 { font-family: 'Fraunces', serif; font-size: 24px; font-weight: 600; line-height: 1.35; margin: 0 0 26px; min-height: 96px; }
+  p.lead { font-size: 15px; line-height: 1.6; color: #4A4460; margin: 0 0 20px; }
+  .notice { background: var(--tint); border: 1px solid var(--line); border-radius: 12px; padding: 14px 16px; font-size: 13px; line-height: 1.55; color: var(--primary); margin-bottom: 24px; }
+  .btn-primary { width: 100%; background: var(--primary); color: var(--paper); border: none; border-radius: 12px; padding: 16px 20px; font-size: 16px; font-weight: 600; cursor: pointer; font-family: 'Inter', sans-serif; }
+  .btn-primary:focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
+  .btn-ghost { width: 100%; background: none; border: 1.5px solid var(--line); border-radius: 12px; padding: 15px 20px; font-size: 15px; font-weight: 600; color: var(--primary); cursor: pointer; font-family: 'Inter', sans-serif; margin-top: 10px; }
+  .progress-row { display: flex; gap: 5px; margin-bottom: 22px; }
+  .progress-seg { flex: 1; height: 4px; border-radius: 2px; background: var(--line); }
+  .progress-seg.active { background: var(--accent); }
+  .qcount { font-size: 12px; color: var(--muted); font-family: 'IBM Plex Mono', monospace; margin-bottom: 10px; }
+  .options { display: flex; flex-direction: column; gap: 10px; }
+  .opt-btn { text-align: left; padding: 14px 16px; border-radius: 10px; border: 1.5px solid var(--line); background: #fff; cursor: pointer; font-size: 15px; font-weight: 500; color: var(--ink); font-family: 'Inter', sans-serif; transition: all 0.15s ease; }
+  .opt-btn:hover { border-color: var(--primary); background: var(--tint); }
+  .opt-btn.selected { border-color: var(--primary); background: var(--tint); }
+  .opt-btn:focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
+  .back-link { margin-top: 20px; background: none; border: none; color: var(--muted); font-size: 13px; cursor: pointer; padding: 0; }
+  .result-label-row { display: flex; align-items: baseline; gap: 12px; margin-bottom: 6px; }
+  .result-label { font-family: 'Fraunces', serif; font-size: 40px; font-weight: 700; }
+  .result-score { font-family: 'IBM Plex Mono', monospace; font-size: 13px; color: var(--muted); margin-bottom: 18px; }
+  .bar-track { height: 8px; background: var(--line); border-radius: 4px; overflow: hidden; margin-bottom: 22px; }
+  .bar-fill { height: 100%; border-radius: 4px; transition: width 0.6s ease; }
+  .section-label { font-size: 12px; color: var(--muted); letter-spacing: 0.03em; margin-bottom: 10px; }
+  .domain-row { margin-bottom: 10px; }
+  .domain-top { display: flex; justify-content: space-between; font-size: 13px; margin-bottom: 4px; }
+  .domain-val { color: var(--muted); font-family: 'IBM Plex Mono', monospace; }
+  .domain-track { height: 5px; background: var(--line); border-radius: 3px; overflow: hidden; }
+  .domain-fill { height: 100%; background: var(--primary); border-radius: 3px; }
+  @media (prefers-reduced-motion: reduce) { .opt-btn, .bar-fill { transition: none; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="header">
+    <svg id="lens" width="72" height="72" viewBox="0 0 72 72" style="overflow:visible"></svg>
+    <div>
+      <div class="brand-title">Focus Check</div>
+      <div class="brand-sub">A SELF-REFLECTION SCREENER</div>
+    </div>
+  </div>
+
+  <div id="app"></div>
+</div>
+
+<script>
+const QUESTIONS = [
+  { id: 1, domain: "attention", text: "You sit down to do one task and resurface an hour later having done three unrelated things." },
+  { id: 2, domain: "attention", text: "You re-read the same sentence or paragraph several times before it actually lands." },
+  { id: 3, domain: "hyperactivity", text: "Sitting still through a long meeting or film feels like an active effort, not a default state." },
+  { id: 4, domain: "impulsivity", text: "You've sent a message, bought something, or made a plan on the spot that you later reconsidered." },
+  { id: 5, domain: "attention", text: "You lose track of keys, your phone, or paperwork often enough that it's a running joke with people close to you." },
+  { id: 6, domain: "organization", text: "You have several half-finished projects, tabs, or notebooks on the go at once." },
+  { id: 7, domain: "attention", text: "Background noise or a second conversation pulls your attention away from what you're supposed to be doing." },
+  { id: 8, domain: "hyperactivity", text: "Your leg bounces, you fidget with something, or you find reasons to get up while you're supposed to be focused." },
+  { id: 9, domain: "impulsivity", text: "You interrupt or finish people's sentences before you've fully heard them out." },
+  { id: 10, domain: "organization", text: "Deadlines sneak up on you even when you knew about them well in advance." },
+  { id: 11, domain: "attention", text: "A task you find boring feels almost physically uncomfortable to push through, no matter how important it is." },
+  { id: 12, domain: "regulation", text: "Your mood or energy for a task can swing sharply depending on how interesting it is in the moment." },
+];
+
+const OPTIONS = [
+  { value: 0, label: "Never" },
+  { value: 1, label: "Rarely" },
+  { value: 2, label: "Often" },
+  { value: 3, label: "Very often" },
+];
+
+const DOMAIN_LABELS = {
+  attention: "Attention & focus",
+  hyperactivity: "Restlessness",
+  impulsivity: "Impulsivity",
+  organization: "Organization",
+  regulation: "Mood & motivation swing",
+};
+
+const MAX_SCORE = QUESTIONS.length * 3;
+
+let answers = {};
+let current = 0;
+let screen = "intro"; // intro | quiz | result
+
+function scoreBand(total) {
+  const pct = total / MAX_SCORE;
+  if (pct < 0.3) {
+    return { label: "Low signal", color: "var(--low)", blurb: "Your answers don't show much pattern of the attention, restlessness, or impulsivity traits this check looks at." };
+  }
+  if (pct < 0.6) {
+    return { label: "Some signal", color: "var(--mid)", blurb: "You're noticing some of these patterns some of the time. Plenty of people land here without it being ADHD — but if it's affecting daily life, it's worth paying attention to." };
+  }
+  return { label: "Strong signal", color: "var(--high)", blurb: "A lot of these patterns are showing up often for you. That doesn't mean a diagnosis — only a qualified clinician can give you one — but it may be worth a proper conversation with a doctor or psychologist." };
+}
+
+function renderLens(progress) {
+  const svg = document.getElementById("lens");
+  const dots = 12;
+  let inner = `<circle cx="36" cy="36" r="3" fill="#F2A93B" opacity="${progress}"></circle>`;
+  for (let i = 0; i < dots; i++) {
+    const angle = (i / dots) * Math.PI * 2;
+    const scatterR = 30;
+    const focusR = 4 + (i % 3);
+    const r = scatterR - (scatterR - focusR) * progress;
+    const x = 36 + Math.cos(angle) * r;
+    const y = 36 + Math.sin(angle) * r;
+    inner += `<circle cx="${x}" cy="${y}" r="1.6" fill="#4C3B6E" opacity="${0.35 + 0.65 * progress}"></circle>`;
+  }
+  svg.innerHTML = inner;
+}
+
+function selectAnswer(qid, value) {
+  answers[qid] = value;
+  render();
+  setTimeout(() => {
+    if (current < QUESTIONS.length - 1) {
+      current += 1;
+    } else {
+      screen = "result";
+    }
+    render();
+  }, 180);
+}
+
+function restart() {
+  answers = {};
+  current = 0;
+  screen = "intro";
+  render();
+}
+
+function copyResult(total, band) {
+  const text = `I took the Focus Check (12-question ADHD self-reflection screener).\nResult: ${band.label} (${total}/${MAX_SCORE})\n\nThis isn't a diagnosis — just a starting point for a conversation. Try it yourself.`;
+  navigator.clipboard?.writeText(text).then(() => {
+    const btn = document.getElementById("copyBtn");
+    if (btn) {
+      const original = btn.textContent;
+      btn.textContent = "Copied ✓";
+      setTimeout(() => (btn.textContent = original), 2000);
+    }
+  });
+}
+
+function render() {
+  const app = document.getElementById("app");
+  const answeredCount = Object.keys(answers).length;
+  const progress = answeredCount / QUESTIONS.length;
+  renderLens(screen === "intro" ? 0 : screen === "result" ? 1 : progress);
+
+  if (screen === "intro") {
+    app.innerHTML = `
+      <h1>Twelve questions.<br>Ninety seconds. No login.</h1>
+      <p class="lead">This is a light, shareable version of the attention / restlessness / impulsivity patterns that show up in ADHD screening conversations. Answer honestly about the last six months — there's no "good" answer, just a signal to notice.</p>
+      <div class="notice">This isn't a diagnostic tool and no score here means you have or don't have ADHD. Only a doctor or psychologist can diagnose that. Think of this as a conversation starter, for yourself or with a clinician.</div>
+      <button class="btn-primary" id="startBtn">Start the check →</button>
+    `;
+    document.getElementById("startBtn").onclick = () => { screen = "quiz"; render(); };
+    return;
+  }
+
+  if (screen === "quiz") {
+    const q = QUESTIONS[current];
+    let segs = "";
+    for (let i = 0; i < QUESTIONS.length; i++) {
+      segs += `<div class="progress-seg ${i <= current ? "active" : ""}"></div>`;
+    }
+    let opts = "";
+    OPTIONS.forEach(opt => {
+      const selected = answers[q.id] === opt.value;
+      opts += `<button class="opt-btn ${selected ? "selected" : ""}" data-val="${opt.value}">${opt.label}</button>`;
+    });
+    app.innerHTML = `
+      <div class="progress-row">${segs}</div>
+      <div class="qcount">QUESTION ${current + 1} / ${QUESTIONS.length}</div>
+      <h2>${q.text}</h2>
+      <div class="options">${opts}</div>
+      ${current > 0 ? `<button class="back-link" id="backBtn">← back</button>` : ""}
+    `;
+    app.querySelectorAll(".opt-btn").forEach(btn => {
+      btn.onclick = () => selectAnswer(q.id, parseInt(btn.dataset.val, 10));
+    });
+    if (current > 0) {
+      document.getElementById("backBtn").onclick = () => { current -= 1; render(); };
+    }
+    return;
+  }
+
+  if (screen === "result") {
+    const total = Object.values(answers).reduce((a, b) => a + b, 0);
+    const band = scoreBand(total);
+    const domainTotals = {};
+    QUESTIONS.forEach(q => { domainTotals[q.domain] = (domainTotals[q.domain] || 0) + (answers[q.id] ?? 0); });
+
+    let domainRows = "";
+    Object.entries(domainTotals).forEach(([domain, val]) => {
+      const domainMax = QUESTIONS.filter(q => q.domain === domain).length * 3;
+      domainRows += `
+        <div class="domain-row">
+          <div class="domain-top"><span>${DOMAIN_LABELS[domain]}</span><span class="domain-val">${val}/${domainMax}</span></div>
+          <div class="domain-track"><div class="domain-fill" style="width:${(val / domainMax) * 100}%"></div></div>
+        </div>`;
+    });
+
+    app.innerHTML = `
+      <div class="qcount">YOUR RESULT</div>
+      <div class="result-label-row"><span class="result-label" style="color:${band.color}">${band.label}</span></div>
+      <div class="result-score">${total} / ${MAX_SCORE} points</div>
+      <div class="bar-track"><div class="bar-fill" style="width:${(total / MAX_SCORE) * 100}%; background:${band.color}"></div></div>
+      <p class="lead">${band.blurb}</p>
+      <div class="section-label">BREAKDOWN BY AREA</div>
+      ${domainRows}
+      <div class="notice" style="margin-top:16px;">Remember: this is a screener you built to share, not a clinical instrument. If these patterns are getting in the way of work, relationships, or daily life, a real conversation with a doctor or psychologist is the next useful step.</div>
+      <button class="btn-primary" id="copyBtn">Copy result to share</button>
+      <button class="btn-ghost" id="restartBtn">Retake</button>
+    `;
+    document.getElementById("copyBtn").onclick = () => copyResult(total, band);
+    document.getElementById("restartBtn").onclick = restart;
+    return;
+  }
+}
+
+render();
+</script>
+</body>
+</html>
