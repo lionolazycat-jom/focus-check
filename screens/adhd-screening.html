@@ -1,0 +1,404 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ADHD Symptom Check-In</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap');
+
+:root{
+  --ink:#1A1608;
+  --paper:#F3EEE0;
+  --paper-dim:#E9E1CB;
+  --amber:#B9812A;
+  --amber-deep:#7A5417;
+  --amber-soft:#EFDCAE;
+  --line:#DDD3B4;
+  --warn:#A24B3A;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{
+  background:var(--ink);
+  color:var(--ink);
+  font-family:'Inter',sans-serif;
+  min-height:100vh;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  padding:32px 16px;
+}
+.app{
+  width:100%;
+  max-width:640px;
+  background:var(--paper);
+  border-radius:4px;
+  overflow:hidden;
+  box-shadow:0 40px 80px rgba(0,0,0,0.45);
+}
+.topbar{
+  background:var(--amber-deep);
+  color:var(--amber-soft);
+  padding:18px 28px;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  font-family:'IBM Plex Mono',monospace;
+  font-size:12px;
+  letter-spacing:0.08em;
+  text-transform:uppercase;
+}
+.topbar .dot{
+  width:7px;height:7px;border-radius:50%;
+  background:var(--amber-soft);
+  display:inline-block;margin-right:8px;
+  animation:pulse 1.4s ease-in-out infinite;
+}
+@keyframes pulse{0%,100%{opacity:1;}50%{opacity:0.25;}}
+.pulseline{
+  height:44px;
+  background:var(--amber-deep);
+  position:relative;
+  overflow:hidden;
+}
+.pulseline svg{position:absolute;top:0;left:0;height:100%;width:100%;}
+.progress-track{
+  height:3px;
+  background:var(--line);
+  position:relative;
+}
+.progress-fill{
+  height:100%;
+  background:var(--amber);
+  width:0%;
+  transition:width 0.4s ease;
+}
+.content{
+  padding:44px 40px 36px;
+}
+.eyebrow{
+  font-family:'IBM Plex Mono',monospace;
+  font-size:12px;
+  letter-spacing:0.1em;
+  text-transform:uppercase;
+  color:var(--amber-deep);
+  margin-bottom:14px;
+}
+h1{
+  font-family:'Fraunces',serif;
+  font-weight:500;
+  font-size:28px;
+  line-height:1.3;
+  color:var(--ink);
+  margin-bottom:8px;
+}
+.intro-text{
+  font-size:15px;
+  line-height:1.65;
+  color:#423B2A;
+  margin-bottom:28px;
+}
+.intro-text strong{color:var(--amber-deep);}
+.start-btn, .nav-btn{
+  font-family:'Inter',sans-serif;
+  font-weight:600;
+  font-size:14px;
+  padding:14px 26px;
+  border-radius:2px;
+  border:none;
+  cursor:pointer;
+  background:var(--amber);
+  color:#fff;
+  transition:background 0.2s ease, transform 0.15s ease;
+}
+.start-btn:hover, .nav-btn:hover{background:var(--amber-deep);}
+.nav-btn:disabled{background:#C9BC9C;cursor:not-allowed;}
+.nav-btn.secondary{
+  background:transparent;
+  color:var(--amber-deep);
+  border:1.5px solid var(--amber-deep);
+}
+.nav-btn.secondary:hover{background:var(--amber-soft);}
+
+.question-num{
+  font-family:'IBM Plex Mono',monospace;
+  font-size:13px;
+  color:var(--amber);
+  margin-bottom:10px;
+}
+.question-text{
+  font-family:'Fraunces',serif;
+  font-size:22px;
+  font-weight:500;
+  line-height:1.4;
+  margin-bottom:30px;
+  min-height:80px;
+}
+.scale{
+  display:flex;
+  flex-direction:column;
+  gap:10px;
+  margin-bottom:32px;
+}
+.scale-option{
+  display:flex;
+  align-items:center;
+  gap:14px;
+  padding:13px 16px;
+  border:1.5px solid var(--line);
+  border-radius:2px;
+  cursor:pointer;
+  transition:all 0.15s ease;
+  background:#fff;
+}
+.scale-option:hover{border-color:var(--amber);}
+.scale-option.selected{
+  border-color:var(--amber);
+  background:var(--amber-soft);
+}
+.scale-option input{accent-color:var(--amber);width:16px;height:16px;}
+.scale-option .label{font-size:14.5px;color:var(--ink);}
+.scale-option .num{
+  font-family:'IBM Plex Mono',monospace;
+  font-size:11px;
+  color:#9A8F6F;
+  margin-left:auto;
+}
+.nav-row{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+}
+.footer-note{
+  font-size:12px;
+  color:#9A8F6F;
+  margin-top:20px;
+  line-height:1.5;
+}
+
+/* results */
+.result-score{
+  font-family:'Fraunces',serif;
+  font-size:56px;
+  font-weight:600;
+  color:var(--amber-deep);
+  line-height:1;
+}
+.result-max{font-family:'IBM Plex Mono',monospace;font-size:14px;color:#9A8F6F;}
+.band-badge{
+  display:inline-block;
+  padding:6px 14px;
+  border-radius:20px;
+  font-family:'IBM Plex Mono',monospace;
+  font-size:12px;
+  text-transform:uppercase;
+  letter-spacing:0.06em;
+  margin-top:14px;
+  margin-bottom:22px;
+}
+.band-minimal{background:#DCE8DF;color:#2F5D3A;}
+.band-mild{background:#EFE3B0;color:#7A6317;}
+.band-moderate{background:#F0D9C0;color:#8A4E1F;}
+.band-severe{background:#F0C7C0;color:var(--warn);}
+.result-summary{
+  font-size:15px;
+  line-height:1.7;
+  color:#423B2A;
+  margin-bottom:20px;
+}
+.disclaimer-box{
+  background:var(--paper-dim);
+  border-left:3px solid var(--warn);
+  padding:16px 18px;
+  font-size:13px;
+  line-height:1.6;
+  color:#4A4232;
+  margin-top:26px;
+  border-radius:2px;
+}
+.disclaimer-box strong{display:block;margin-bottom:6px;color:var(--warn);font-family:'IBM Plex Mono',monospace;font-size:11px;text-transform:uppercase;letter-spacing:0.06em;}
+.retake{margin-top:24px;}
+.hidden{display:none;}
+</style>
+</head>
+<body>
+<div class="app">
+  <div class="topbar">
+    <span><span class="dot"></span>ADHD Screening Tool</span>
+    <span id="topbarStatus">18 Items</span>
+  </div>
+  <div class="pulseline">
+    <svg viewBox="0 0 600 44" preserveAspectRatio="none">
+      <polyline points="0,30 40,30 50,14 60,38 70,22 90,22 130,22 140,10 150,36 160,20 180,20 220,20 230,8 240,36 250,18 270,18 310,18 320,12 330,32 340,20 360,20 400,20 410,10 420,34 430,20 450,20 490,20 500,12 510,32 520,20 540,20 580,20 590,14 600,30"
+        fill="none" stroke="#D3A85E" stroke-width="1.5" opacity="0.55"/>
+    </svg>
+  </div>
+  <div class="progress-track"><div class="progress-fill" id="progressFill"></div></div>
+
+  <div class="content">
+
+    <div id="intro">
+      <div class="eyebrow">Self-Reflection · 18 Items</div>
+      <h1>ADHD Symptom Check-In</h1>
+      <p class="intro-text">
+        This check-in covers 18 statements about attention, focus, organization, restlessness, and
+        impulsivity — the two symptom clusters most associated with ADHD. Rate how often each one
+        applies to you. It takes about <strong>4–5 minutes</strong> and gives you a general picture,
+        not a diagnosis.
+      </p>
+      <button class="start-btn" onclick="startQuiz()">Begin Check-In</button>
+    </div>
+
+    <div id="quiz" class="hidden">
+      <div class="question-num" id="qNum">Question 1 of 18</div>
+      <div class="question-text" id="qText"></div>
+      <div class="scale" id="qScale"></div>
+      <div class="nav-row">
+        <button class="nav-btn secondary" id="backBtn" onclick="prevQuestion()">Back</button>
+        <button class="nav-btn" id="nextBtn" onclick="nextQuestion()" disabled>Next</button>
+      </div>
+      <div class="footer-note">Answer honestly based on the last six months. There are no right or wrong answers.</div>
+    </div>
+
+    <div id="results" class="hidden">
+      <div class="eyebrow">Your Results</div>
+      <div class="result-score"><span id="scoreVal">0</span><span class="result-max"> / 72</span></div>
+      <div id="bandBadge" class="band-badge"></div>
+      <div class="result-summary" id="resultSummary"></div>
+      <div class="disclaimer-box">
+        <strong>Important disclaimer</strong>
+        This tool is for self-reflection only and is not a diagnostic instrument. It has not been
+        clinically validated and cannot account for your full history, childhood symptoms, or
+        context — all of which matter for an ADHD diagnosis. Only a licensed clinician (such as a
+        psychiatrist or psychologist) can diagnose ADHD. If these patterns are affecting your work,
+        relationships, or wellbeing, consider scheduling an evaluation. If you ever feel unsafe or
+        unable to cope, contact a crisis line or emergency services in your area right away.
+      </div>
+      <div class="retake"><button class="nav-btn secondary" onclick="resetQuiz()">Retake Check-In</button></div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+const questions = [
+  "I have trouble wrapping up the final details of a project once the challenging parts are done.",
+  "I have difficulty getting things in order when I have a task that requires organization.",
+  "I have problems remembering appointments or obligations.",
+  "I avoid or delay starting tasks that require a lot of sustained thought.",
+  "I fidget or squirm with my hands or feet when I have to sit for a long time.",
+  "I feel overly active, like I'm \"driven by a motor,\" and compelled to keep moving.",
+  "I make careless mistakes when working on a boring or difficult project.",
+  "I have difficulty keeping my attention when doing repetitive or tedious work.",
+  "I have difficulty concentrating on what people say, even when they're speaking directly to me.",
+  "I misplace or have trouble finding things at home or work.",
+  "I am easily distracted by activity or noise around me.",
+  "I leave my seat in meetings or other situations where I'm expected to stay seated.",
+  "I feel restless or fidgety on the inside, even when sitting still.",
+  "I have difficulty unwinding or relaxing when I finally have time to myself.",
+  "I find myself talking too much in social situations.",
+  "I finish other people's sentences before they can finish them.",
+  "I have difficulty waiting my turn in situations that require it.",
+  "I interrupt others when they're busy or in the middle of something."
+];
+
+const optionLabels = ["Never","Rarely","Sometimes","Often","Very often"];
+
+let current = 0;
+let answers = new Array(questions.length).fill(null);
+
+function startQuiz(){
+  document.getElementById('intro').classList.add('hidden');
+  document.getElementById('quiz').classList.remove('hidden');
+  renderQuestion();
+}
+
+function renderQuestion(){
+  document.getElementById('qNum').textContent = `Question ${current+1} of ${questions.length}`;
+  document.getElementById('qText').textContent = questions[current];
+  const scaleDiv = document.getElementById('qScale');
+  scaleDiv.innerHTML = '';
+  optionLabels.forEach((label, idx) => {
+    const opt = document.createElement('label');
+    opt.className = 'scale-option' + (answers[current] === idx ? ' selected' : '');
+    opt.innerHTML = `<input type="radio" name="opt" ${answers[current]===idx?'checked':''}/><span class="label">${label}</span><span class="num">${idx}</span>`;
+    opt.onclick = () => selectAnswer(idx);
+    scaleDiv.appendChild(opt);
+  });
+  document.getElementById('backBtn').disabled = current === 0;
+  document.getElementById('nextBtn').disabled = answers[current] === null;
+  document.getElementById('nextBtn').textContent = current === questions.length-1 ? 'See Results' : 'Next';
+  updateProgress();
+}
+
+function selectAnswer(idx){
+  answers[current] = idx;
+  renderQuestion();
+}
+
+function nextQuestion(){
+  if(answers[current] === null) return;
+  if(current === questions.length-1){
+    showResults();
+  } else {
+    current++;
+    renderQuestion();
+  }
+}
+
+function prevQuestion(){
+  if(current > 0){
+    current--;
+    renderQuestion();
+  }
+}
+
+function updateProgress(){
+  const pct = ((current) / questions.length) * 100;
+  document.getElementById('progressFill').style.width = pct + '%';
+  document.getElementById('topbarStatus').textContent = `${current+1} / ${questions.length}`;
+}
+
+function showResults(){
+  document.getElementById('quiz').classList.add('hidden');
+  document.getElementById('results').classList.remove('hidden');
+  document.getElementById('progressFill').style.width = '100%';
+
+  const score = answers.reduce((a,b) => a + b, 0);
+  document.getElementById('scoreVal').textContent = score;
+
+  let band, badgeClass, summary;
+  if(score <= 17){
+    band = 'Minimal signs';
+    badgeClass = 'band-minimal';
+    summary = "Your responses show few attention, organization, or restlessness difficulties. This doesn't rule out ADHD, but the frequency you reported is on the lower end. If focus and follow-through generally feel manageable, that's a good sign.";
+  } else if(score <= 35){
+    band = 'Mild signs';
+    badgeClass = 'band-mild';
+    summary = "You reported some recurring attention or restlessness patterns at a mild level. Plenty of people experience this without it meeting criteria for ADHD, but if it's starting to affect your work, studies, or relationships, it may be worth a conversation with a professional.";
+  } else if(score <= 53){
+    band = 'Moderate signs';
+    badgeClass = 'band-moderate';
+    summary = "Your responses suggest a moderate level of inattentive and/or hyperactive-impulsive symptoms — patterns that show up often and may be interfering with daily functioning. A licensed clinician can help clarify whether ADHD, another condition, or a combination is involved.";
+  } else {
+    band = 'Significant signs';
+    badgeClass = 'band-severe';
+    summary = "Your responses point to frequent and intense attention, organization, and restlessness difficulties that may be significantly affecting your daily life. This pattern is worth taking seriously. Consider reaching out to a doctor or psychiatrist for a full ADHD evaluation — effective support and treatment options exist.";
+  }
+
+  document.getElementById('bandBadge').textContent = band;
+  document.getElementById('bandBadge').className = 'band-badge ' + badgeClass;
+  document.getElementById('resultSummary').textContent = summary;
+}
+
+function resetQuiz(){
+  current = 0;
+  answers = new Array(questions.length).fill(null);
+  document.getElementById('results').classList.add('hidden');
+  document.getElementById('intro').classList.remove('hidden');
+  document.getElementById('progressFill').style.width = '0%';
+  document.getElementById('topbarStatus').textContent = '18 Items';
+}
+</script>
+</body>
+</html>

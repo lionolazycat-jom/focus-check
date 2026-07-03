@@ -1,0 +1,404 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>OCD Symptom Check-In</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap');
+
+:root{
+  --ink:#141A17;
+  --paper:#F1EEE6;
+  --paper-dim:#E7E2D6;
+  --teal:#2F6F62;
+  --teal-deep:#1F4E44;
+  --teal-soft:#C7DDD6;
+  --line:#D8D2C3;
+  --warn:#A24B3A;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{
+  background:var(--ink);
+  color:var(--ink);
+  font-family:'Inter',sans-serif;
+  min-height:100vh;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  padding:32px 16px;
+}
+.app{
+  width:100%;
+  max-width:640px;
+  background:var(--paper);
+  border-radius:4px;
+  overflow:hidden;
+  box-shadow:0 40px 80px rgba(0,0,0,0.45);
+}
+.topbar{
+  background:var(--teal-deep);
+  color:var(--teal-soft);
+  padding:18px 28px;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  font-family:'IBM Plex Mono',monospace;
+  font-size:12px;
+  letter-spacing:0.08em;
+  text-transform:uppercase;
+}
+.topbar .dot{
+  width:7px;height:7px;border-radius:50%;
+  background:var(--teal-soft);
+  display:inline-block;margin-right:8px;
+  animation:pulse 2.2s ease-in-out infinite;
+}
+@keyframes pulse{0%,100%{opacity:1;}50%{opacity:0.3;}}
+.pulseline{
+  height:44px;
+  background:var(--teal-deep);
+  position:relative;
+  overflow:hidden;
+}
+.pulseline svg{position:absolute;top:0;left:0;height:100%;width:100%;}
+.progress-track{
+  height:3px;
+  background:var(--line);
+  position:relative;
+}
+.progress-fill{
+  height:100%;
+  background:var(--teal);
+  width:0%;
+  transition:width 0.4s ease;
+}
+.content{
+  padding:44px 40px 36px;
+}
+.eyebrow{
+  font-family:'IBM Plex Mono',monospace;
+  font-size:12px;
+  letter-spacing:0.1em;
+  text-transform:uppercase;
+  color:var(--teal-deep);
+  margin-bottom:14px;
+}
+h1{
+  font-family:'Fraunces',serif;
+  font-weight:500;
+  font-size:28px;
+  line-height:1.3;
+  color:var(--ink);
+  margin-bottom:8px;
+}
+.intro-text{
+  font-size:15px;
+  line-height:1.65;
+  color:#3A423E;
+  margin-bottom:28px;
+}
+.intro-text strong{color:var(--teal-deep);}
+.start-btn, .nav-btn{
+  font-family:'Inter',sans-serif;
+  font-weight:600;
+  font-size:14px;
+  padding:14px 26px;
+  border-radius:2px;
+  border:none;
+  cursor:pointer;
+  background:var(--teal);
+  color:#fff;
+  transition:background 0.2s ease, transform 0.15s ease;
+}
+.start-btn:hover, .nav-btn:hover{background:var(--teal-deep);}
+.nav-btn:disabled{background:#B9B2A0;cursor:not-allowed;}
+.nav-btn.secondary{
+  background:transparent;
+  color:var(--teal-deep);
+  border:1.5px solid var(--teal-deep);
+}
+.nav-btn.secondary:hover{background:var(--teal-soft);}
+
+.question-num{
+  font-family:'IBM Plex Mono',monospace;
+  font-size:13px;
+  color:var(--teal);
+  margin-bottom:10px;
+}
+.question-text{
+  font-family:'Fraunces',serif;
+  font-size:22px;
+  font-weight:500;
+  line-height:1.4;
+  margin-bottom:30px;
+  min-height:80px;
+}
+.scale{
+  display:flex;
+  flex-direction:column;
+  gap:10px;
+  margin-bottom:32px;
+}
+.scale-option{
+  display:flex;
+  align-items:center;
+  gap:14px;
+  padding:13px 16px;
+  border:1.5px solid var(--line);
+  border-radius:2px;
+  cursor:pointer;
+  transition:all 0.15s ease;
+  background:#fff;
+}
+.scale-option:hover{border-color:var(--teal);}
+.scale-option.selected{
+  border-color:var(--teal);
+  background:var(--teal-soft);
+}
+.scale-option input{accent-color:var(--teal);width:16px;height:16px;}
+.scale-option .label{font-size:14.5px;color:var(--ink);}
+.scale-option .num{
+  font-family:'IBM Plex Mono',monospace;
+  font-size:11px;
+  color:#8A8477;
+  margin-left:auto;
+}
+.nav-row{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+}
+.footer-note{
+  font-size:12px;
+  color:#8A8477;
+  margin-top:20px;
+  line-height:1.5;
+}
+
+/* results */
+.result-score{
+  font-family:'Fraunces',serif;
+  font-size:56px;
+  font-weight:600;
+  color:var(--teal-deep);
+  line-height:1;
+}
+.result-max{font-family:'IBM Plex Mono',monospace;font-size:14px;color:#8A8477;}
+.band-badge{
+  display:inline-block;
+  padding:6px 14px;
+  border-radius:20px;
+  font-family:'IBM Plex Mono',monospace;
+  font-size:12px;
+  text-transform:uppercase;
+  letter-spacing:0.06em;
+  margin-top:14px;
+  margin-bottom:22px;
+}
+.band-minimal{background:#DCE8DF;color:#2F5D3A;}
+.band-mild{background:#E9E4C4;color:#7A6A1F;}
+.band-moderate{background:#F0D9C0;color:#8A4E1F;}
+.band-severe{background:#F0C7C0;color:var(--warn);}
+.result-summary{
+  font-size:15px;
+  line-height:1.7;
+  color:#3A423E;
+  margin-bottom:20px;
+}
+.disclaimer-box{
+  background:var(--paper-dim);
+  border-left:3px solid var(--warn);
+  padding:16px 18px;
+  font-size:13px;
+  line-height:1.6;
+  color:#4A443A;
+  margin-top:26px;
+  border-radius:2px;
+}
+.disclaimer-box strong{display:block;margin-bottom:6px;color:var(--warn);font-family:'IBM Plex Mono',monospace;font-size:11px;text-transform:uppercase;letter-spacing:0.06em;}
+.retake{margin-top:24px;}
+.hidden{display:none;}
+</style>
+</head>
+<body>
+<div class="app">
+  <div class="topbar">
+    <span><span class="dot"></span>OCD Screening Tool</span>
+    <span id="topbarStatus">18 Items</span>
+  </div>
+  <div class="pulseline">
+    <svg viewBox="0 0 600 44" preserveAspectRatio="none">
+      <polyline points="0,22 60,22 75,8 90,36 105,22 180,22 195,10 210,34 225,22 300,22 315,6 330,38 345,22 420,22 435,10 450,34 465,22 540,22 555,8 570,36 585,22 600,22"
+        fill="none" stroke="#4C8577" stroke-width="1.5" opacity="0.55"/>
+    </svg>
+  </div>
+  <div class="progress-track"><div class="progress-fill" id="progressFill"></div></div>
+
+  <div class="content">
+
+    <div id="intro">
+      <div class="eyebrow">Self-Reflection · 18 Items</div>
+      <h1>OCD Symptom Check-In</h1>
+      <p class="intro-text">
+        This check-in walks through 18 statements about common obsessive-compulsive patterns —
+        intrusive thoughts, checking, ordering, contamination concerns, and rituals. Rate each one
+        by how often it applies to you. It takes about <strong>4–5 minutes</strong> and gives you a
+        general picture, not a diagnosis.
+      </p>
+      <button class="start-btn" onclick="startQuiz()">Begin Check-In</button>
+    </div>
+
+    <div id="quiz" class="hidden">
+      <div class="question-num" id="qNum">Question 1 of 18</div>
+      <div class="question-text" id="qText"></div>
+      <div class="scale" id="qScale"></div>
+      <div class="nav-row">
+        <button class="nav-btn secondary" id="backBtn" onclick="prevQuestion()">Back</button>
+        <button class="nav-btn" id="nextBtn" onclick="nextQuestion()" disabled>Next</button>
+      </div>
+      <div class="footer-note">Answer honestly based on the last two weeks. There are no right or wrong answers.</div>
+    </div>
+
+    <div id="results" class="hidden">
+      <div class="eyebrow">Your Results</div>
+      <div class="result-score"><span id="scoreVal">0</span><span class="result-max"> / 72</span></div>
+      <div id="bandBadge" class="band-badge"></div>
+      <div class="result-summary" id="resultSummary"></div>
+      <div class="disclaimer-box">
+        <strong>Important disclaimer</strong>
+        This tool is for self-reflection only and is not a diagnostic instrument. It has not been
+        clinically validated and cannot account for your full history or context. Only a licensed
+        mental health professional can diagnose OCD or any other condition. If these patterns are
+        distressing or getting in the way of daily life, please consider reaching out to a doctor,
+        therapist, or psychiatrist for a proper evaluation. If you ever feel unsafe or unable to
+        cope, contact a crisis line or emergency services in your area right away.
+      </div>
+      <div class="retake"><button class="nav-btn secondary" onclick="resetQuiz()">Retake Check-In</button></div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+const questions = [
+  "I feel the need to wash my hands or shower repeatedly, even when I know they're clean.",
+  "I avoid touching doorknobs, money, or other objects that feel \"contaminated.\"",
+  "I check locks, appliances, or switches multiple times before I feel okay leaving.",
+  "I re-read or re-write things repeatedly to make sure they're \"just right.\"",
+  "I need objects arranged in a specific order or symmetry, and it bothers me when they're not.",
+  "I have intrusive, unwanted thoughts that feel disturbing or out of character for me.",
+  "I mentally repeat phrases, prayers, or numbers to \"neutralize\" a bad thought.",
+  "I seek reassurance from others repeatedly about the same worry.",
+  "I count objects or steps, or repeat actions a specific number of times.",
+  "I have trouble throwing things away, even items with no clear use.",
+  "I fear I might accidentally cause harm (like leaving the stove on), so I check repeatedly.",
+  "I avoid certain numbers, words, or colors because they feel \"bad\" or \"unsafe.\"",
+  "Simple tasks take me much longer than they should because of rituals or checking.",
+  "I feel intense anxiety if I can't complete a ritual in exactly the \"right\" way.",
+  "I have unwanted thoughts about things being unclean, immoral, or unsafe that I can't shake.",
+  "I redo tasks — like locking a door or turning off a light — until it \"feels right.\"",
+  "My rituals or checking behaviors interfere with work, school, or relationships.",
+  "I know my worries or rituals are excessive, but I feel unable to stop them."
+];
+
+const optionLabels = ["Never","Rarely","Sometimes","Often","Almost always"];
+
+let current = 0;
+let answers = new Array(questions.length).fill(null);
+
+function startQuiz(){
+  document.getElementById('intro').classList.add('hidden');
+  document.getElementById('quiz').classList.remove('hidden');
+  renderQuestion();
+}
+
+function renderQuestion(){
+  document.getElementById('qNum').textContent = `Question ${current+1} of ${questions.length}`;
+  document.getElementById('qText').textContent = questions[current];
+  const scaleDiv = document.getElementById('qScale');
+  scaleDiv.innerHTML = '';
+  optionLabels.forEach((label, idx) => {
+    const opt = document.createElement('label');
+    opt.className = 'scale-option' + (answers[current] === idx ? ' selected' : '');
+    opt.innerHTML = `<input type="radio" name="opt" ${answers[current]===idx?'checked':''}/><span class="label">${label}</span><span class="num">${idx}</span>`;
+    opt.onclick = () => selectAnswer(idx);
+    scaleDiv.appendChild(opt);
+  });
+  document.getElementById('backBtn').disabled = current === 0;
+  document.getElementById('nextBtn').disabled = answers[current] === null;
+  document.getElementById('nextBtn').textContent = current === questions.length-1 ? 'See Results' : 'Next';
+  updateProgress();
+}
+
+function selectAnswer(idx){
+  answers[current] = idx;
+  renderQuestion();
+}
+
+function nextQuestion(){
+  if(answers[current] === null) return;
+  if(current === questions.length-1){
+    showResults();
+  } else {
+    current++;
+    renderQuestion();
+  }
+}
+
+function prevQuestion(){
+  if(current > 0){
+    current--;
+    renderQuestion();
+  }
+}
+
+function updateProgress(){
+  const pct = ((current) / questions.length) * 100;
+  document.getElementById('progressFill').style.width = pct + '%';
+  document.getElementById('topbarStatus').textContent = `${current+1} / ${questions.length}`;
+}
+
+function showResults(){
+  document.getElementById('quiz').classList.add('hidden');
+  document.getElementById('results').classList.remove('hidden');
+  document.getElementById('progressFill').style.width = '100%';
+
+  const score = answers.reduce((a,b) => a + b, 0);
+  document.getElementById('scoreVal').textContent = score;
+
+  let band, badgeClass, summary;
+  if(score <= 12){
+    band = 'Minimal signs';
+    badgeClass = 'band-minimal';
+    summary = "Your responses show few or occasional obsessive-compulsive patterns. This doesn't rule out OCD, but the frequency and intensity you reported are on the lower end. If nothing here is bothering you day-to-day, that's a good sign — but keep an eye on things if they change.";
+  } else if(score <= 26){
+    band = 'Mild signs';
+    badgeClass = 'band-mild';
+    summary = "You reported some recurring intrusive thoughts, checking, or ritual-like behaviors at a mild level. Many people experience this without it meeting criteria for OCD, but if these patterns are starting to take up time or cause discomfort, it may be worth talking to a professional.";
+  } else if(score <= 44){
+    band = 'Moderate signs';
+    badgeClass = 'band-moderate';
+    summary = "Your responses suggest a moderate level of obsessive-compulsive symptoms — patterns that show up fairly often and may be starting to interfere with your day, relationships, or peace of mind. A conversation with a licensed mental health professional could help clarify what's going on and what support might help.";
+  } else {
+    band = 'Significant signs';
+    badgeClass = 'band-severe';
+    summary = "Your responses point to frequent and intense obsessive-compulsive patterns that may be significantly affecting your daily life. This pattern is worth taking seriously. Please consider reaching out to a doctor, therapist, or psychiatrist for a full evaluation — effective treatments for OCD do exist.";
+  }
+
+  document.getElementById('bandBadge').textContent = band;
+  document.getElementById('bandBadge').className = 'band-badge ' + badgeClass;
+  document.getElementById('resultSummary').textContent = summary;
+}
+
+function resetQuiz(){
+  current = 0;
+  answers = new Array(questions.length).fill(null);
+  document.getElementById('results').classList.add('hidden');
+  document.getElementById('intro').classList.remove('hidden');
+  document.getElementById('progressFill').style.width = '0%';
+  document.getElementById('topbarStatus').textContent = '18 Items';
+}
+</script>
+</body>
+</html>
