@@ -1,0 +1,431 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Anxiety Symptom Check-In</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap');
+
+:root{
+  --ink:#161421;
+  --paper:#EFEDF3;
+  --paper-dim:#E2DEEC;
+  --violet:#5B5EA6;
+  --violet-deep:#3B3D74;
+  --violet-soft:#D6D5EE;
+  --line:#D2CFE2;
+  --warn:#A24B3A;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{
+  background:var(--ink);
+  color:var(--ink);
+  font-family:'Inter',sans-serif;
+  min-height:100vh;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  padding:32px 16px;
+}
+.app{
+  width:100%;
+  max-width:640px;
+  background:var(--paper);
+  border-radius:4px;
+  overflow:hidden;
+  box-shadow:0 40px 80px rgba(0,0,0,0.45);
+}
+.topbar{
+  background:var(--violet-deep);
+  color:var(--violet-soft);
+  padding:18px 28px;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  font-family:'IBM Plex Mono',monospace;
+  font-size:12px;
+  letter-spacing:0.08em;
+  text-transform:uppercase;
+}
+.topbar .dot{
+  width:7px;height:7px;border-radius:50%;
+  background:var(--violet-soft);
+  display:inline-block;margin-right:8px;
+  animation:pulse 2.8s ease-in-out infinite;
+}
+@keyframes pulse{0%,100%{opacity:1;}50%{opacity:0.3;}}
+.pulseline{
+  height:44px;
+  background:var(--violet-deep);
+  position:relative;
+  overflow:hidden;
+}
+.pulseline svg{position:absolute;top:0;left:0;height:100%;width:100%;}
+.progress-track{
+  height:3px;
+  background:var(--line);
+  position:relative;
+}
+.progress-fill{
+  height:100%;
+  background:var(--violet);
+  width:0%;
+  transition:width 0.4s ease;
+}
+.content{
+  padding:44px 40px 36px;
+}
+.eyebrow{
+  font-family:'IBM Plex Mono',monospace;
+  font-size:12px;
+  letter-spacing:0.1em;
+  text-transform:uppercase;
+  color:var(--violet-deep);
+  margin-bottom:14px;
+}
+h1{
+  font-family:'Fraunces',serif;
+  font-weight:500;
+  font-size:28px;
+  line-height:1.3;
+  color:var(--ink);
+  margin-bottom:8px;
+}
+.intro-text{
+  font-size:15px;
+  line-height:1.65;
+  color:#3A3650;
+  margin-bottom:28px;
+}
+.intro-text strong{color:var(--violet-deep);}
+.start-btn, .nav-btn{
+  font-family:'Inter',sans-serif;
+  font-weight:600;
+  font-size:14px;
+  padding:14px 26px;
+  border-radius:2px;
+  border:none;
+  cursor:pointer;
+  background:var(--violet);
+  color:#fff;
+  transition:background 0.2s ease, transform 0.15s ease;
+}
+.start-btn:hover, .nav-btn:hover{background:var(--violet-deep);}
+.nav-btn:disabled{background:#B9B7CC;cursor:not-allowed;}
+.nav-btn.secondary{
+  background:transparent;
+  color:var(--violet-deep);
+  border:1.5px solid var(--violet-deep);
+}
+.nav-btn.secondary:hover{background:var(--violet-soft);}
+
+.question-num{
+  font-family:'IBM Plex Mono',monospace;
+  font-size:13px;
+  color:var(--violet);
+  margin-bottom:10px;
+}
+.question-text{
+  font-family:'Fraunces',serif;
+  font-size:22px;
+  font-weight:500;
+  line-height:1.4;
+  margin-bottom:30px;
+  min-height:80px;
+}
+.scale{
+  display:flex;
+  flex-direction:column;
+  gap:10px;
+  margin-bottom:32px;
+}
+.scale-option{
+  display:flex;
+  align-items:center;
+  gap:14px;
+  padding:13px 16px;
+  border:1.5px solid var(--line);
+  border-radius:2px;
+  cursor:pointer;
+  transition:all 0.15s ease;
+  background:#fff;
+}
+.scale-option:hover{border-color:var(--violet);}
+.scale-option.selected{
+  border-color:var(--violet);
+  background:var(--violet-soft);
+}
+.scale-option input{accent-color:var(--violet);width:16px;height:16px;}
+.scale-option .label{font-size:14.5px;color:var(--ink);}
+.scale-option .num{
+  font-family:'IBM Plex Mono',monospace;
+  font-size:11px;
+  color:#8D89A8;
+  margin-left:auto;
+}
+.nav-row{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+}
+.footer-note{
+  font-size:12px;
+  color:#8D89A8;
+  margin-top:20px;
+  line-height:1.5;
+}
+
+/* results */
+.result-score{
+  font-family:'Fraunces',serif;
+  font-size:56px;
+  font-weight:600;
+  color:var(--violet-deep);
+  line-height:1;
+}
+.result-max{font-family:'IBM Plex Mono',monospace;font-size:14px;color:#8D89A8;}
+.band-badge{
+  display:inline-block;
+  padding:6px 14px;
+  border-radius:20px;
+  font-family:'IBM Plex Mono',monospace;
+  font-size:12px;
+  text-transform:uppercase;
+  letter-spacing:0.06em;
+  margin-top:14px;
+  margin-bottom:22px;
+}
+.band-minimal{background:#DCE8DF;color:#2F5D3A;}
+.band-mild{background:#E9E4C4;color:#7A6A1F;}
+.band-moderate{background:#E4D5EC;color:#5B3D74;}
+.band-severe{background:#F0C7C0;color:var(--warn);}
+.result-summary{
+  font-size:15px;
+  line-height:1.7;
+  color:#3A3650;
+  margin-bottom:20px;
+}
+.disclaimer-box{
+  background:var(--paper-dim);
+  border-left:3px solid var(--warn);
+  padding:16px 18px;
+  font-size:13px;
+  line-height:1.6;
+  color:#423E58;
+  margin-top:26px;
+  border-radius:2px;
+}
+.disclaimer-box strong{display:block;margin-bottom:6px;color:var(--warn);font-family:'IBM Plex Mono',monospace;font-size:11px;text-transform:uppercase;letter-spacing:0.06em;}
+.retake{margin-top:24px;}
+.hidden{display:none;}
+</style>
+</head>
+<body>
+<div class="app">
+  <div class="topbar">
+    <span><span class="dot"></span>Anxiety Screening Tool</span>
+    <span id="topbarStatus">18 Items</span>
+  </div>
+  <div class="pulseline">
+    <svg viewBox="0 0 600 44" preserveAspectRatio="none">
+      <polyline points="0,22 50,22 60,16 70,28 80,22 140,22 150,4 160,40 170,22 230,22 240,18 250,26 260,22 320,22 330,2 340,42 350,22 410,22 420,16 430,28 440,22 500,22 510,4 520,40 530,22 590,22 600,22"
+        fill="none" stroke="#8C8FCB" stroke-width="1.5" opacity="0.55"/>
+    </svg>
+  </div>
+  <div class="progress-track"><div class="progress-fill" id="progressFill"></div></div>
+
+  <div class="content">
+
+    <div id="intro">
+      <div class="eyebrow">Self-Reflection · 18 Items</div>
+      <h1>Anxiety Symptom Check-In</h1>
+      <p class="intro-text">
+        This check-in covers 18 statements about worry, physical tension, panic, avoidance, and
+        social anxiety. Rate how often each one has applied to you recently. It takes about
+        <strong>4–5 minutes</strong> and gives you a general picture, not a diagnosis.
+      </p>
+      <button class="start-btn" onclick="startQuiz()">Begin Check-In</button>
+    </div>
+
+    <div id="quiz" class="hidden">
+      <div class="question-num" id="qNum">Question 1 of 18</div>
+      <div class="question-text" id="qText"></div>
+      <div class="scale" id="qScale"></div>
+      <div class="nav-row">
+        <button class="nav-btn secondary" id="backBtn" onclick="prevQuestion()">Back</button>
+        <button class="nav-btn" id="nextBtn" onclick="nextQuestion()" disabled>Next</button>
+      </div>
+      <div class="footer-note">Answer honestly based on the last two weeks. There are no right or wrong answers.</div>
+    </div>
+
+    <div id="results" class="hidden">
+      <div class="eyebrow">Your Results</div>
+      <div class="result-score"><span id="scoreVal">0</span><span class="result-max"> / 54</span></div>
+      <div id="bandBadge" class="band-badge"></div>
+      <div class="result-summary" id="resultSummary"></div>
+      <div class="disclaimer-box">
+        <strong>Important disclaimer</strong>
+        This tool is for self-reflection only and is not a diagnostic instrument. It has not been
+        clinically validated and cannot account for your full history or context. Only a licensed
+        mental health professional can diagnose an anxiety disorder. If worry or physical anxiety
+        symptoms are getting in the way of daily life, consider reaching out to a doctor or
+        therapist for a proper evaluation. If you ever feel unsafe, in crisis, or unable to cope,
+        contact a crisis line or emergency services in your area right away.
+      </div>
+      <div class="retake" style="display:flex;gap:12px;flex-wrap:wrap;">
+        <button class="nav-btn secondary" onclick="resetQuiz()">Retake Check-In</button>
+        <button class="nav-btn" onclick="shareResults()">Share Results</button>
+      </div>
+      <div class="footer-note" id="shareNote"></div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+const questions = [
+  "Feeling nervous, anxious, or on edge.",
+  "Not being able to stop or control worrying.",
+  "Worrying too much about different things.",
+  "Having trouble relaxing.",
+  "Being so restless that it's hard to sit still.",
+  "Becoming easily annoyed or irritable.",
+  "Feeling afraid, as if something awful might happen.",
+  "Avoiding places or situations because they make me anxious.",
+  "Experiencing a racing heart, sweating, or trembling for no clear reason.",
+  "Having sudden episodes of intense fear or panic.",
+  "Fearing that I'll be judged or embarrassed in front of others.",
+  "Having difficulty falling or staying asleep because of worry.",
+  "Feeling tense muscles, headaches, or stomach discomfort tied to stress.",
+  "Needing reassurance from others that things will be okay.",
+  "Avoiding making decisions because I'm afraid of the outcome.",
+  "Feeling on edge or unable to \"shut my mind off\" before bed.",
+  "Finding it hard to concentrate because my mind keeps jumping to worries.",
+  "Feeling that anxiety is interfering with my work, school, or relationships."
+];
+
+const optionLabels = ["Not at all","Several days","More than half the days","Nearly every day"];
+
+let current = 0;
+let answers = new Array(questions.length).fill(null);
+
+function startQuiz(){
+  document.getElementById('intro').classList.add('hidden');
+  document.getElementById('quiz').classList.remove('hidden');
+  renderQuestion();
+}
+
+function renderQuestion(){
+  document.getElementById('qNum').textContent = `Question ${current+1} of ${questions.length}`;
+  document.getElementById('qText').textContent = questions[current];
+  const scaleDiv = document.getElementById('qScale');
+  scaleDiv.innerHTML = '';
+  optionLabels.forEach((label, idx) => {
+    const opt = document.createElement('label');
+    opt.className = 'scale-option' + (answers[current] === idx ? ' selected' : '');
+    opt.innerHTML = `<input type="radio" name="opt" ${answers[current]===idx?'checked':''}/><span class="label">${label}</span><span class="num">${idx}</span>`;
+    opt.onclick = () => selectAnswer(idx);
+    scaleDiv.appendChild(opt);
+  });
+  document.getElementById('backBtn').disabled = current === 0;
+  document.getElementById('nextBtn').disabled = answers[current] === null;
+  document.getElementById('nextBtn').textContent = current === questions.length-1 ? 'See Results' : 'Next';
+  updateProgress();
+}
+
+function selectAnswer(idx){
+  answers[current] = idx;
+  renderQuestion();
+}
+
+function nextQuestion(){
+  if(answers[current] === null) return;
+  if(current === questions.length-1){
+    showResults();
+  } else {
+    current++;
+    renderQuestion();
+  }
+}
+
+function prevQuestion(){
+  if(current > 0){
+    current--;
+    renderQuestion();
+  }
+}
+
+function updateProgress(){
+  const pct = ((current) / questions.length) * 100;
+  document.getElementById('progressFill').style.width = pct + '%';
+  document.getElementById('topbarStatus').textContent = `${current+1} / ${questions.length}`;
+}
+
+function showResults(){
+  document.getElementById('quiz').classList.add('hidden');
+  document.getElementById('results').classList.remove('hidden');
+  document.getElementById('progressFill').style.width = '100%';
+
+  const score = answers.reduce((a,b) => a + b, 0);
+  document.getElementById('scoreVal').textContent = score;
+
+  let band, badgeClass, summary;
+  if(score <= 13){
+    band = 'Minimal signs';
+    badgeClass = 'band-minimal';
+    summary = "Your responses show low levels of worry and physical anxiety symptoms. This doesn't rule out anxiety, but the frequency you reported is on the lower end. If you generally feel able to manage day-to-day stress, that's a good sign.";
+  } else if(score <= 27){
+    band = 'Mild signs';
+    badgeClass = 'band-mild';
+    summary = "You reported some recurring worry, tension, or avoidance at a mild level. This is common and doesn't necessarily mean you have an anxiety disorder, but if it's starting to wear on you, it may be worth talking it through with a professional.";
+  } else if(score <= 40){
+    band = 'Moderate signs';
+    badgeClass = 'band-moderate';
+    summary = "Your responses suggest a moderate level of anxiety — worry, physical tension, or avoidance that shows up often and may be affecting your sleep, focus, or relationships. A conversation with a licensed mental health professional could help clarify what's going on and what support might help.";
+  } else {
+    band = 'Significant signs';
+    badgeClass = 'band-severe';
+    summary = "Your responses point to frequent and intense anxiety symptoms that may be significantly affecting your daily life. This pattern is worth taking seriously. Please consider reaching out to a doctor or therapist for a full evaluation — effective treatments for anxiety do exist.";
+  }
+
+  document.getElementById('bandBadge').textContent = band;
+  document.getElementById('bandBadge').className = 'band-badge ' + badgeClass;
+  document.getElementById('resultSummary').textContent = summary;
+}
+
+function resetQuiz(){
+  current = 0;
+  answers = new Array(questions.length).fill(null);
+  document.getElementById('results').classList.add('hidden');
+  document.getElementById('intro').classList.remove('hidden');
+  document.getElementById('progressFill').style.width = '0%';
+  document.getElementById('topbarStatus').textContent = '18 Items';
+  document.getElementById('shareNote').textContent = '';
+}
+
+async function shareResults(){
+  const score = document.getElementById('scoreVal').textContent;
+  const band = document.getElementById('bandBadge').textContent;
+  const text = `Anxiety Symptom Check-In result: ${score} / 54 (${band}). This is a self-reflection tool, not a diagnosis — a licensed professional should be consulted for an actual evaluation.`;
+  const shareNote = document.getElementById('shareNote');
+  if(navigator.share){
+    try{
+      await navigator.share({ title: 'Anxiety Symptom Check-In', text: text });
+    }catch(err){
+      // user cancelled or share failed — no action needed
+    }
+  } else if(navigator.clipboard){
+    try{
+      await navigator.clipboard.writeText(text);
+      shareNote.textContent = 'Copied your result to the clipboard.';
+    }catch(err){
+      shareNote.textContent = text;
+    }
+  } else {
+    shareNote.textContent = text;
+  }
+}
+</script>
+</body>
+</html>
